@@ -94,6 +94,11 @@ def on_train_epoch_end(trainer):
 def on_fit_epoch_end(trainer):
     """Log training metrics at the end of each fit epoch to MLflow."""
     if mlflow:
+        LOGGER.info("logging weights to mlflow")
+        mlflow.log_artifact(str(trainer.best.parent))  # log save_dir/weights directory with best.pt and last.pt
+        for f in trainer.save_dir.glob("*"):  # log all other files in save_dir
+            if f.suffix in {".pt"}:
+                mlflow.log_artifact(str(f))
         mlflow.log_metrics(metrics=SANITIZE(trainer.metrics), step=trainer.epoch)
 
 
